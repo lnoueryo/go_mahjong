@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "fmt"
+	"fmt"
 	"mahjong/player"
 	"mahjong/table"
 )
@@ -16,5 +16,10 @@ func main() {
 	table.AddPlayer(player2)
 	table.AddPlayer(player3)
 	table.AddPlayer(player4)
-	table.Print()
+	fmt.Println(table.Tiles.LeftTile)
+	table.DrawTile(player1)
+	table.DiscardTile(player1, 1)
+	// table.Print()
+	// fmt.Println(len(table.Tiles.HandTiles[player1.ID]))
+	fmt.Println(table.Tiles.LeftTile)
 }

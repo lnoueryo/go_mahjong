@@ -24,7 +24,7 @@ func (tb *Table) AddPlayer(player *player.Player) {
 	tb.Players = append(tb.Players, player)
 	tb.Tiles.SetPlayer(player)
 	if len(tb.Players) == 4 {
-		tb.Tiles.CreateWallTiles(tb.Players)
+		tb.CreateWallTiles(tb.Players)
 	}
 }
 

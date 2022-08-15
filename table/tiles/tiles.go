@@ -68,8 +68,8 @@ func (ts *Tiles) CreateWallTiles(players []*player.Player) {
 	}
 	interfaceTiles := ShuffleSlice(tiles)
 	shuffledTiles := interfaceTiles.([]*Tile)
-	ts.WallTiles = shuffledTiles[:WALLTILESNUM-1]
-	ts.DeadTiles = shuffledTiles[WALLTILESNUM:]
+	ts.WallTiles = shuffledTiles[:WALLTILESNUM]
+	ts.DeadTiles = shuffledTiles[WALLTILESNUM-1:]
 	ts.LeftTile = len(ts.WallTiles)
 	for _, p := range players {
 		ts.DealTiles(p)
@@ -79,13 +79,26 @@ func (ts *Tiles) CreateWallTiles(players []*player.Player) {
 func (ts *Tiles) DealTiles(player *player.Player) {
 	ts.HandTiles[player.ID] = ts.WallTiles[:13]
 	ts.WallTiles = ts.WallTiles[13:]
+	ts.LeftTile -= 13
 }
 
-func (ts *Tiles) DrawTile() *Tile {
+func (ts *Tiles) DrawTile(player *player.Player) {
 	ts.LeftTile -= 1
 	drawedTile := ts.WallTiles[0]
+	ts.HandTiles[player.ID] = append(ts.HandTiles[player.ID], drawedTile)
 	ts.WallTiles = ts.WallTiles[1:]
-	return drawedTile
+}
+
+func (ts *Tiles) DiscardTile(player *player.Player, tile *Tile) {
+	tiles := []*Tile{}
+	for _, ht := range ts.HandTiles[player.ID] {
+		if ht.ID == tile.ID {
+			ts.DiscardedTiles[player.ID] = append(ts.DiscardedTiles[player.ID], ht)
+			continue
+		}
+		tiles = append(tiles, ht)
+	}
+	ts.HandTiles[player.ID] = tiles
 }
 
 func (ts *Tiles) Print() {
