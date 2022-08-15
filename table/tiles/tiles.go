@@ -5,12 +5,14 @@ import (
 	"math/rand"
 	"strings"
 	"time"
+	"mahjong/player"
 )
 
 const (
 	TOTALTILESNUM = 136
 	WALLTILESNUM = 122
 	DEADTILESNUM = 14
+	POINT = 25000
 )
 
 var (
@@ -26,9 +28,20 @@ type Tiles struct {
 	DeadTiles		[]*Tile
 	HandTiles		map[int][]*Tile
 	DiscardedTiles	map[int][]*Tile
+	Points			map[int]int
 }
 
 func NewTiles() *Tiles {
+	return &Tiles{0, []*Tile{}, []*Tile{}, map[int][]*Tile{}, map[int][]*Tile{}, map[int]int{}}
+}
+
+func (ts *Tiles)SetPlayer(player *player.Player) {
+	ts.HandTiles[player.ID] = []*Tile{}
+	ts.DiscardedTiles[player.ID] = []*Tile{}
+	ts.Points[player.ID] = POINT
+}
+
+func (ts *Tiles) CreateWallTiles(players []*player.Player) {
 	id := 1
 	tiles := make([]*Tile, 0, TOTALTILESNUM)
 	for _, v := range VARIETIES {
@@ -55,15 +68,17 @@ func NewTiles() *Tiles {
 	}
 	interfaceTiles := ShuffleSlice(tiles)
 	shuffledTiles := interfaceTiles.([]*Tile)
-	wallTiles := shuffledTiles[:WALLTILESNUM-1]
-	deadTiles := shuffledTiles[WALLTILESNUM:]
-	return &Tiles{len(wallTiles), wallTiles, deadTiles}
+	ts.WallTiles = shuffledTiles[:WALLTILESNUM-1]
+	ts.DeadTiles = shuffledTiles[WALLTILESNUM:]
+	ts.LeftTile = len(ts.WallTiles)
+	for _, p := range players {
+		ts.DealTiles(p)
+	}
 }
 
-func (ts *Tiles) DealTiles() []*Tile {
-	handTiles := ts.WallTiles[:13]
+func (ts *Tiles) DealTiles(player *player.Player) {
+	ts.HandTiles[player.ID] = ts.WallTiles[:13]
 	ts.WallTiles = ts.WallTiles[13:]
-	return handTiles
 }
 
 func (ts *Tiles) DrawTile() *Tile {
@@ -81,6 +96,14 @@ func (ts *Tiles) Print() {
 	fmt.Printf("\n%s 壁牌 %s\n", strings.Repeat("=", 25), strings.Repeat("=", 25))
 	for _, dt := range ts.DeadTiles {
 		dt.Print()
+	}
+	fmt.Printf("\n%s プレイヤー %s\n", strings.Repeat("=", 25), strings.Repeat("=", 25))
+	for k, v := range ts.HandTiles {
+		fmt.Printf("\n%s ID %d %s\n", strings.Repeat("*", 25), k, strings.Repeat("*", 25))
+		fmt.Printf("ポイント: %d\n", ts.Points[k])
+		for _, t := range v {
+			t.Print()
+		}
 	}
 }
 
