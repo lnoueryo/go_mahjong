@@ -1,10 +1,10 @@
 package main
 
 import (
-	"mahjong/table"
+	"mahjong/wall"
 )
 
 func main() {
-	wall := table.NewWall()
+	wall := wall.NewWall()
 	wall.Print()
 }
