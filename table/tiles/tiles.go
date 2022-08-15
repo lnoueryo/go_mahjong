@@ -1,4 +1,4 @@
-package wall
+package tiles
 
 import (
 	"fmt"
@@ -20,14 +20,15 @@ var (
 )
 
 
-type Wall struct {
-	WallTiles []Tile
-	DeadTiles []Tile
+type Tiles struct {
+	LeftTile	int
+	WallTiles	[]*Tile
+	DeadTiles	[]*Tile
 }
 
-func NewWall() Wall {
+func NewTiles() *Tiles {
 	id := 1
-	tiles := make([]Tile, 0, TOTALTILESNUM)
+	tiles := make([]*Tile, 0, TOTALTILESNUM)
 	for _, v := range VARIETIES {
 		if v == "字牌" {
 			for _, h := range HONORS {
@@ -41,6 +42,9 @@ func NewWall() Wall {
 			for _, s := range SUITS {
 				for k := 0; k < 4; k++ {
 					tile := NewTile(id, s, v)
+					if k == 0 && s == "5" {
+						tile.Bonus = 1
+					}
 					tiles = append(tiles, tile)
 					id += 1
 				}
@@ -48,13 +52,13 @@ func NewWall() Wall {
 		}
 	}
 	interfaceTiles := ShuffleSlice(tiles)
-	shuffledTiles := interfaceTiles.([]Tile)
+	shuffledTiles := interfaceTiles.([]*Tile)
 	wallTiles := shuffledTiles[:WALLTILESNUM-1]
 	deadTiles := shuffledTiles[WALLTILESNUM:]
-	return Wall{wallTiles, deadTiles}
+	return &Tiles{len(wallTiles), wallTiles, deadTiles}
 }
 
-func (w *Wall) Print() {
+func (w *Tiles) Print() {
 	fmt.Printf("%s ツモ山 %s\n", strings.Repeat("=", 25), strings.Repeat("=", 25))
 	for _, wt := range w.WallTiles {
 		wt.Print()
@@ -67,7 +71,7 @@ func (w *Wall) Print() {
 
 func ShuffleSlice(slice interface{}) interface{} {
 	rand.Seed(time.Now().UnixNano())
-    if v, ok := slice.([]Tile); ok {
+    if v, ok := slice.([]*Tile); ok {
         rand.Shuffle(len(v), func(i, j int) { v[i], v[j] = v[j], v[i] })
         return v
     }
