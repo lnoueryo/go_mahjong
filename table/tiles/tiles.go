@@ -21,9 +21,11 @@ var (
 
 
 type Tiles struct {
-	LeftTile	int
-	WallTiles	[]*Tile
-	DeadTiles	[]*Tile
+	LeftTile		int
+	WallTiles		[]*Tile
+	DeadTiles		[]*Tile
+	HandTiles		map[int][]*Tile
+	DiscardedTiles	map[int][]*Tile
 }
 
 func NewTiles() *Tiles {
@@ -58,13 +60,26 @@ func NewTiles() *Tiles {
 	return &Tiles{len(wallTiles), wallTiles, deadTiles}
 }
 
-func (w *Tiles) Print() {
+func (ts *Tiles) DealTiles() []*Tile {
+	handTiles := ts.WallTiles[:13]
+	ts.WallTiles = ts.WallTiles[13:]
+	return handTiles
+}
+
+func (ts *Tiles) DrawTile() *Tile {
+	ts.LeftTile -= 1
+	drawedTile := ts.WallTiles[0]
+	ts.WallTiles = ts.WallTiles[1:]
+	return drawedTile
+}
+
+func (ts *Tiles) Print() {
 	fmt.Printf("%s ツモ山 %s\n", strings.Repeat("=", 25), strings.Repeat("=", 25))
-	for _, wt := range w.WallTiles {
+	for _, wt := range ts.WallTiles {
 		wt.Print()
 	}
 	fmt.Printf("\n%s 壁牌 %s\n", strings.Repeat("=", 25), strings.Repeat("=", 25))
-	for _, dt := range w.DeadTiles {
+	for _, dt := range ts.DeadTiles {
 		dt.Print()
 	}
 }
